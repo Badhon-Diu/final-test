@@ -1,0 +1,25 @@
+### Health check
+GET http://localhost:3001/api/health
+
+### Transcribe audio
+POST http://localhost:3001/api/analyze-audio/transcribe
+Content-Type: multipart/form-data; boundary=boundary123
+
+--boundary123
+Content-Disposition: form-data; name="audio"; filename="test.webm"
+Content-Type: audio/webm
+
+< ./path/to/your/audio.webm
+--boundary123--
+
+### Extract marks from text
+POST http://localhost:3001/api/analyze-audio/extract
+Content-Type: application/json
+
+{
+  "text": "Habibul got 19, 2336 got 17",
+  "dataset": [
+    {"id": "259-12-33-2", "name": "Habibul"},
+    {"id": "259-12-33-6", "name": "Tushar"}
+  ]
+}
