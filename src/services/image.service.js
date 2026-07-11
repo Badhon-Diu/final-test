@@ -1,7 +1,7 @@
 'use strict';
 
 const { CONFIG } = require('../config');
-const { normalizeMark } = require('../utils/helpers');
+const { normalizeMark, createTimeout } = require('../utils/helpers');
 
 /**
  * Send image(s) to your Image API and get back structured results.
@@ -23,17 +23,23 @@ async function analyzeAllImages(files, students = []) {
     formData.append('students', JSON.stringify(students));
   }
 
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    body: formData,
-  });
+  const { signal, clear } = createTimeout(120_000);
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      body: formData,
+      signal,
+    });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Image API error ${response.status}: ${text}`);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Image API error ${response.status}: ${text}`);
+    }
+
+    return response.json();
+  } finally {
+    clear();
   }
-
-  return response.json();
 }
 
 /**
