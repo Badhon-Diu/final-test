@@ -23,6 +23,17 @@ app.set('views', path.join(__dirname, 'views'));
 
 // ── Middleware ───────────────────────────────────────────────────────────────
 
+// Fix double-slash URLs (caused by extension QR code generation bug)
+// e.g. https://host.com//upload/uuid → https://host.com/upload/uuid
+app.use((req, res, next) => {
+  if (req.path.includes('//')) {
+    const cleanPath = req.path.replace(/\/+/g, '/');
+    const qs = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    return res.redirect(301, cleanPath + qs);
+  }
+  next();
+});
+
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Large limit for base64 audio payloads
 
